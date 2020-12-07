@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Harshits part declation
     boolean flag1=false;
+    boolean handFlag=false;
     private static final int REQUEST_CODE = 1000;
     private static final int REQUEST_PERMISSION = 1001;
     private static final SparseIntArray ORIENTATION = new SparseIntArray();
@@ -113,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        gesture = (GestureOverlayView) findViewById(R.id.gestures);
+       // gesture = (GestureOverlayView) findViewById(R.id.gestures);
         mRootLayout = findViewById(R.id.Relative_Layout);
         TextAnnotation = (ImageButton) findViewById(R.id.imageButton2);
         HandAnnotation = (ImageButton) findViewById(R.id.imageButton);
@@ -170,6 +171,17 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     toggleScreenShare(v);
                 }
+            }
+        });
+        HandAnnotation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(handFlag==false){
+                    gesture = (GestureOverlayView) findViewById(R.id.gestures);
+                    gesture.setVisibility(View.VISIBLE);
+                    handFlag=true;
+                }
+
             }
         });
         TextAnnotation.setOnClickListener(new View.OnClickListener() {
@@ -529,4 +541,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
 }
