@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.Intent;
+import android.gesture.GestureOverlayView;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.MediaRecorder;
@@ -70,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
     private MediaRecorder mMediaRecorder;
 
     private int mScreenDensity;
-    private static final int DISPLAY_WIDTH = 1080;
-    private static final int DISPLAY_HEIGHT = 1920;
+    private static final int DISPLAY_WIDTH = 1920;
+    private static final int DISPLAY_HEIGHT = 1080;
 
     static {
         ORIENTATION.append(Surface.ROTATION_0, 90);
@@ -104,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     private CameraPreview mCameraPreview;
     boolean cam;
     private String currentPhotoPath="default path";
+    GestureOverlayView gesture;
 
 
     /** Called when the activity is first created. */
@@ -111,14 +113,7 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-       //setContentView(R.layout.activity_main);
-        mToggleButton = findViewById(R.id.toggleButton);
+        gesture = (GestureOverlayView) findViewById(R.id.gestures);
         mRootLayout = findViewById(R.id.Relative_Layout);
         TextAnnotation = (ImageButton) findViewById(R.id.imageButton2);
         HandAnnotation = (ImageButton) findViewById(R.id.imageButton);
@@ -128,7 +123,10 @@ public class MainActivity extends AppCompatActivity {
         cam = checkCameraHardware(this);
         mCameraPreview = new CameraPreview(this, mCamera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_Preview);
+
         preview.addView(mCameraPreview);
+
+        mToggleButton = findViewById(R.id.toggleButton);
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         mScreenDensity = displayMetrics.densityDpi;
@@ -174,9 +172,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-
-
         TextAnnotation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -239,6 +234,25 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mCamera.startPreview();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //  mCamera.release();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mCamera.release();
     }
 
     private Camera getCameraInstance() {
@@ -342,13 +356,15 @@ public class MainActivity extends AppCompatActivity {
             initRecorder();
             recordScreen();
         } else {
-            if(flag1==true) {
-                mMediaRecorder.stop();
-                mMediaRecorder.reset();
-                stopRecordScreen();
-                flag1=false;
+            if(mMediaRecorder!=null) {
+                if (flag1 == true) {
+                    Log.d("Error","this stop is running");
+                    mMediaRecorder.stop();
+                    mMediaRecorder.reset();
+                    stopRecordScreen();
+                    flag1 = false;
+                }
             }
-
         }
 
     }

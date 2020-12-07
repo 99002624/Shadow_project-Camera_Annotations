@@ -1,90 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-    <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:id="@+id/Relative_Layout"
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MainActivity"
-        android:id="@+id/Relative_Layout"
-        >
+        android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+
+        <android.gesture.GestureOverlayView
+            android:id="@+id/gestures"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:fadeEnabled="false"
+            android:fadeOffset="500000"
+            android:gestureColor="#000000"
+            android:gestureStrokeType="multiple"
+            android:uncertainGestureColor="#000000"
+
+            tools:ignore="MissingConstraints"></android.gesture.GestureOverlayView>
+
+        <FrameLayout
+            android:id="@+id/camera_Preview"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            tools:ignore="MissingConstraints"
+            tools:layout_editor_absoluteX="3dp"
+            tools:layout_editor_absoluteY="0dp">
+
+        </FrameLayout>
 
 
-            <FrameLayout
-                android:id="@+id/camera_Preview"
-                android:layout_width="410dp"
-                android:layout_height="660dp"
-                tools:ignore="MissingConstraints"
-                tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="0dp">
+        <EditText
+            android:id="@+id/editTextTextPersonName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/black"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/camera_Preview" />
 
-            </FrameLayout>
 
-            <EditText
-                android:id="@+id/editTextTextPersonName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/black"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:text="Name"
-                android:textColor="@color/white"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/camera_Preview" />
 
-            <ImageButton
-                android:id="@+id/imageButton"
-                android:layout_width="65dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="26dp"
-                android:layout_marginBottom="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/button_capture"
-                app:srcCompat="@drawable/ic_launcher_background"
-                tools:ignore="VectorDrawableCompat" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/imageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
 
-            <ToggleButton
-                android:id="@+id/toggleButton"
-                android:layout_width="65dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="25dp"
-                android:layout_marginBottom="16dp"
-                android:text="ToggleButton"
-                android:textOff="record"
-                android:textOn="stop"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageButton" />
+            android:layout_marginEnd="96dp"
+            android:clickable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/button_capture"
+            app:layout_constraintTop_toBottomOf="@+id/camera_Preview"
+            app:layout_constraintVertical_bias="0.654"
+            app:srcCompat="@android:drawable/ic_menu_edit"
+            tools:ignore="MissingConstraints" />
 
-            <ImageButton
-                android:id="@+id/imageButton2"
-                android:layout_width="65dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="35dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginBottom="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/toggleButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@android:drawable/ic_menu_edit" />
+        <ToggleButton
+            android:id="@+id/toggleButton"
+            android:layout_width="65dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="82dp"
+            android:layout_marginTop="36dp"
+            android:layout_marginBottom="35dp"
+            android:text="ToggleButton"
+            android:textOff="record"
+            android:textOn="stop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imageButton2"
+            app:layout_constraintTop_toBottomOf="@+id/camera_Preview" />
 
-            <Button
-                android:id="@+id/button_capture"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
-                android:text="Button"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageButton
+            android:id="@+id/imageButton2"
+            android:layout_width="65dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="90dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="115dp"
+            android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/toggleButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/camera_Preview"
+            app:srcCompat="@android:drawable/ic_menu_edit" />
 
-    </RelativeLayout>
+        <Button
+            android:id="@+id/button_capture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="124dp"
+            android:layout_marginBottom="16dp"
+            android:text="Button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/camera_Preview"
+            app:layout_constraintVertical_bias="0.685" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>
 
