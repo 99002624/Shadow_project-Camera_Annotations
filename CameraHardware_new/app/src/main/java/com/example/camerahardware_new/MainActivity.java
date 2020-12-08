@@ -42,6 +42,7 @@ import android.widget.Toast;
 import android.util.SparseIntArray;
 import android.widget.ToggleButton;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
@@ -54,10 +55,13 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-
-    //Harshits part declation
     boolean flag1=false;
     boolean handFlag=false;
+
+
+
+    //Harshits part declation
+
     private static final int REQUEST_CODE = 1000;
     private static final int REQUEST_PERMISSION = 1001;
     private static final SparseIntArray ORIENTATION = new SparseIntArray();
@@ -87,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Sai kiran part declaration
 
-    ImageButton TextAnnotation,HandAnnotation;
+    Button TextAnnotation,HandAnnotation,clearBtn,captureButton;
     EditText editTextFeild;
 
     private final static int START_DRAGGING = 0;
@@ -114,10 +118,13 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-       // gesture = (GestureOverlayView) findViewById(R.id.gestures);
+        gesture = (GestureOverlayView) findViewById(R.id.gestures);
+        gesture.setEnabled(false);
+        HandAnnotation = (Button) findViewById(R.id.imageButton);
+        captureButton = (Button) findViewById(R.id.button_capture);
         mRootLayout = findViewById(R.id.Relative_Layout);
-        TextAnnotation = (ImageButton) findViewById(R.id.imageButton2);
-        HandAnnotation = (ImageButton) findViewById(R.id.imageButton);
+        TextAnnotation = (Button) findViewById(R.id.imageButton2);
+        clearBtn= (Button) findViewById(R.id.clearbutton);
         editTextFeild = (EditText) findViewById(R.id.editTextTextPersonName);
         editTextFeild.setVisibility(View.GONE);
         mCamera = getCameraInstance();
@@ -173,13 +180,28 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        clearBtn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                gesture.invalidate();
+                gesture.clear(true);
+                gesture.cancelClearAnimation();
+            }
+        });
+
+
         HandAnnotation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(handFlag==false){
-                    gesture = (GestureOverlayView) findViewById(R.id.gestures);
-                    gesture.setVisibility(View.VISIBLE);
+                    gesture.setEnabled(true);
                     handFlag=true;
+                }
+                else{
+                    gesture.setEnabled(false);
+                    handFlag=false;
                 }
 
             }
@@ -191,10 +213,13 @@ public class MainActivity extends AppCompatActivity {
                 if(editTextFeild.getVisibility()==View.GONE){
                     editTextFeild.setVisibility(View.VISIBLE);
                 }
+                else{
+                    editTextFeild.setVisibility(View.GONE);
+                }
 
             }
         });
-        Button captureButton = (Button) findViewById(R.id.button_capture);
+
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -205,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
                     mCamera.startPreview();
                     mCamera.takePicture(null, null, mPicture);
                     Log.d("MyCameraApp", "path"+"   "+currentPhotoPath);
+                    //takeScreenshot();
                 }
                 catch (Exception e){
 
