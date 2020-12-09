@@ -1,7 +1,7 @@
 # Shadow_project-Camera_Annotations
 Scope of the Project 
 ||
-•	Application should be able to run the video recording with the default camera. ||
+•	Application should be able to run the video recording with the default camera.
 •	Application should be able record the whole screen including annotation and free handwriting.
 •	Application should be able to render the widget tools in the video frame itself. 
 •	Application should be able to take Text also as input Notes. 
