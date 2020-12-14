@@ -12,38 +12,72 @@
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraint"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
 
+        <SurfaceView
+            android:id="@+id/camera_Preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!--        <FrameLayout-->
+        <!--                android:id="@+id/camera_Preview"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="match_parent"-->
+        <!--                tools:ignore="MissingConstraints"></FrameLayout>-->
 
 
-            <FrameLayout
-                android:id="@+id/camera_Preview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:ignore="MissingConstraints"></FrameLayout>
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@tools:sample/avatars" />
 
         <android.gesture.GestureOverlayView
             android:id="@+id/gestures"
-            android:layout_width="1255dp"
-            android:layout_height="541dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:fadeEnabled="false"
             android:fadeOffset="500000"
             android:gestureColor="#000000"
             android:gestureStrokeType="multiple"
             android:uncertainGestureColor="#000000"
             android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:ignore="MissingConstraints"
-            tools:layout_editor_absoluteX="1dp"
-            tools:layout_editor_absoluteY="-2dp"
-            tools:visibility="visible"></android.gesture.GestureOverlayView>
+            tools:visibility="visible">
 
+        </android.gesture.GestureOverlayView>
+
+        <TextView
+            android:id="@+id/timertextview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="300dp"
+            android:layout_marginEnd="600dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
-            android:layout_width="362dp"
-            android:layout_height="78dp"
-
+            android:id="@+id/linearLayout"
+            android:layout_width="406dp"
+            android:layout_height="90dp"
             android:background="#3E000000"
             android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
@@ -62,7 +96,7 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/screenshot"
-                app:backgroundTint="#DDDDDD"
+                app:backgroundTint="#000000"
                 app:srcCompat="@drawable/screenshot" />
 
             <Button
@@ -78,29 +112,24 @@
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/text3"
 
-                app:backgroundTint="#DDDDDD"
+                app:backgroundTint="#000000"
                 app:srcCompat="@drawable/text3" />
 
 
             <ToggleButton
                 android:id="@+id/toggleButton"
-                android:layout_width="58dp"
-                android:layout_height="69dp"
+                android:layout_width="94dp"
+                android:layout_height="56dp"
                 android:layout_margin="10dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="#FF0000"
-                android:textOff="Start"
-                android:textOn="Stop"></ToggleButton>
+                android:background="@android:drawable/ic_notification_overlay"
+                android:textOff="Start\nRecording"
+                android:textOn="Stop\nRecording"
+                ></ToggleButton>
 
             <Button
                 android:id="@+id/imageButton"
-                android:layout_width="16dp"
-                android:layout_height="70dp"
+                android:layout_width="50dp"
+                android:layout_height="69dp"
                 android:layout_margin="10dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginLeft="10dp"
@@ -110,13 +139,13 @@
                 android:layout_marginBottom="10dp"
                 android:layout_weight="1"
                 android:background="@drawable/pentool"
-                app:backgroundTint="#FFFFFF"
+                app:backgroundTint="#000000"
                 app:srcCompat="@drawable/pentool" />
 
             <Button
                 android:id="@+id/clearbutton"
-                android:layout_width="6dp"
-                android:layout_height="54dp"
+                android:layout_width="52dp"
+                android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginLeft="10dp"
@@ -125,8 +154,8 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
                 android:layout_weight="1"
-                android:background="@drawable/clear"
-                app:backgroundTint="#FFFFFF" />
+                android:background="@android:drawable/ic_delete"
+                app:backgroundTint="#FF0000" />
 
         </LinearLayout>
 

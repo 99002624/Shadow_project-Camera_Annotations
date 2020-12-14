@@ -4,12 +4,17 @@ package com.example.camerahardware_new;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.test.runner.screenshot.ScreenCapture;
+import androidx.test.runner.screenshot.Screenshot;
 
 import android.Manifest;
 import android.content.Intent;
 import android.gesture.GestureOverlayView;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.MediaRecorder;
@@ -31,13 +36,17 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.PixelCopy;
 import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.util.SparseIntArray;
 import android.widget.ToggleButton;
@@ -45,20 +54,42 @@ import android.widget.ToggleButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-//import androidx.test.runner.screenshot;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.graphics.Bitmap.CompressFormat;
+import android.os.HandlerThread;
+import java.lang.Object;
+import 	android.graphics.Canvas;
+import  	android.graphics.Paint;
 
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+
 
     boolean flag1=false;
     boolean handFlag=false;
+    final Context context = this;
+    private Bitmap bmp;
+    private ByteArrayOutputStream bos;
+    private File dir_image2, dir_image;
+    private FileInputStream fis;
+    private FileOutputStream fos;
 
 
+    ImageView myImage;
+    ScreenCapture screen;
+    String word="verification";
+    SurfaceView preview;
+    ByteArrayInputStream fis2;
 
     //Harshits part declation
 
@@ -85,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         ORIENTATION.append(Surface.ROTATION_180, 270);
         ORIENTATION.append(Surface.ROTATION_270, 180);
     }
-
+    //ConstraintLayout mConstraintlayout;
     private RelativeLayout mRootLayout;
     private ToggleButton mToggleButton;
 
@@ -104,13 +135,21 @@ public class MainActivity extends AppCompatActivity {
     float lastYAxis = 0f;
     int numberOfLines=0;
     int i=0;
+    File imagePath;
 
 
     private Camera mCamera;
-    private CameraPreview mCameraPreview;
+    //private CameraPreview mCameraPreview;
     boolean cam;
     private String currentPhotoPath="default path";
     GestureOverlayView gesture;
+    SurfaceView mSurfaceView;
+    SurfaceHolder mSurfaceHolder;
+
+    private int seconds = 0;
+    private boolean running = false;
+    //private TextView timerTextView;
+    TextView timerTextView;
 
 
     /** Called when the activity is first created. */
@@ -129,10 +168,15 @@ public class MainActivity extends AppCompatActivity {
         editTextFeild.setVisibility(View.GONE);
         mCamera = getCameraInstance();
         cam = checkCameraHardware(this);
-        mCameraPreview = new CameraPreview(this, mCamera);
-        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_Preview);
+       // mCameraPreview = new CameraPreview(this, mCamera);
+        mSurfaceView = (SurfaceView) findViewById(R.id.camera_Preview);
 
-        preview.addView(mCameraPreview);
+        mSurfaceHolder = mSurfaceView.getHolder();
+        mSurfaceHolder.addCallback(this);
+        mSurfaceHolder.setKeepScreenOn(true);
+
+        mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
 
         mToggleButton = findViewById(R.id.toggleButton);
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -209,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
         TextAnnotation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//
+
                 if(editTextFeild.getVisibility()==View.GONE){
                     editTextFeild.setVisibility(View.VISIBLE);
                 }
@@ -227,10 +271,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MyCameraApp", "camera open"+"   "+cam);
                 try {
 
-                    mCamera.startPreview();
-                    mCamera.takePicture(null, null, mPicture);
-                    Log.d("MyCameraApp", "path"+"   "+currentPhotoPath);
-                    //takeScreenshot();
+                    takePhoto();
                 }
                 catch (Exception e){
 
@@ -275,10 +316,49 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        try {
+            //mCamera.open();
+            mCamera.setPreviewDisplay(surfaceHolder);
+            mCamera.setDisplayOrientation(0);
+            mCamera.startPreview();
+        } catch (IOException e) {
+            Log.d("MyCameraApp", "camera prervierw should open");
+
+            // left blank for now
+        }
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+        mCamera.stopPreview();
+        // mCamera.release();
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int format,
+                               int width, int height) {
+        // start preview with new settings
+        try {
+            mCamera.setPreviewDisplay(surfaceHolder);
+            mCamera.setDisplayOrientation(0);
+            mCamera.startPreview();
+        } catch (Exception e) {
+            Log.d("MyCameraApp", "surface chaged");
+//
+
+        }
+    }
+
+
     @Override
     protected void onResume() {
         super.onResume();
-        mCamera.startPreview();
+        if(mCamera!=null) {
+            mCamera.startPreview();
+        }
+
+
     }
 
     @Override
@@ -290,7 +370,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mCamera.release();
+        if(mCamera!=null) {
+            mCamera.release();
+        }
+
     }
 
     private Camera getCameraInstance() {
@@ -363,36 +446,43 @@ public class MainActivity extends AppCompatActivity {
         return image;
     }
 
+    public void runTimer()
+    {
+        final Handler handler = new Handler();
+        timerTextView = (TextView) findViewById(R.id.timertextview);
+        timerTextView.setVisibility(View.INVISIBLE);
 
-    public Bitmap takeScreenshot() {
-        View rootView = findViewById(android.R.id.content).getRootView();
-        rootView.setDrawingCacheEnabled(true);
-        return rootView.getDrawingCache();
+        handler.post(new Runnable() {
+            @Override
+
+            public void run()
+            {
+                int hours = seconds / 3600;
+                int minutes = (seconds % 3600) / 60;
+                int secs = seconds % 60;
+
+                String time = String.format("%02d:%02d:%02d", hours, minutes, secs);
+
+                timerTextView.setText(time);
+
+                if (running) {
+                    seconds++;
+                }
+
+                handler.postDelayed(this, 1000);
+            }
+        });
     }
-    public void saveBitmap(Bitmap bitmap) throws IOException {
-
-        File imagePath = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        String imageFileName = "JPEG_" + "_";
-        File kiran = File.createTempFile(imageFileName,".png",imagePath);
-        FileOutputStream fos;
-        try {
-            fos = new FileOutputStream(kiran);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.flush();
-            fos.close();
-        } catch (FileNotFoundException e) {
-            Log.e("GREC", e.getMessage()+"kiafdksdnfsfksznvks", e);
-        } catch (IOException e) {
-            Log.e("GREC", e.getMessage()+"file not found", e);
-        }
-    }
-
 
     private void toggleScreenShare(View v) {
         ToggleButton toggleButton = (ToggleButton) v;
         if (toggleButton.isChecked()){
             initRecorder();
             recordScreen();
+
+            timerTextView.setVisibility(View.VISIBLE);
+            running = true;
+
         } else {
             if(mMediaRecorder!=null) {
                 if (flag1 == true) {
@@ -401,6 +491,10 @@ public class MainActivity extends AppCompatActivity {
                     mMediaRecorder.reset();
                     stopRecordScreen();
                     flag1 = false;
+
+                    timerTextView.setVisibility(View.INVISIBLE);
+                    running = false;
+                    seconds = 0;
                 }
             }
         }
@@ -430,6 +524,8 @@ public class MainActivity extends AppCompatActivity {
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
             mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 
+            runTimer();
+
 
             File mediaStorageDir = new File(Environment.getExternalStorageDirectory(), "CameraAnnotations/ScreenRecordings");
 
@@ -439,13 +535,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            File picStorageDir = new File(Environment.getExternalStorageDirectory(), "CameraAnnotations/Snapshots");
-
-            if (!picStorageDir.exists()) {
-                if (!picStorageDir.mkdirs()) {
-                    Log.d("App", "failed to create directory");
-                }
-            }
 
             mVideoUrl = mediaStorageDir +
                     new StringBuilder("/CamAnotRecord-").append(new SimpleDateFormat("dd-MM-yyyy-hh_mm_ss")
@@ -568,5 +657,118 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+//  ?
+    private void takePhoto() throws IOException{
 
+        // Create a bitmap the size of the scene view.
+        final Bitmap bitmap = Bitmap.createBitmap(mSurfaceView.getWidth(),mSurfaceView.getHeight(),Bitmap.Config.ARGB_8888);
+
+
+
+//        // Create a handler thread to offload the processing of the image.
+       final HandlerThread handlerThread = new HandlerThread("PixelCopier");
+       handlerThread.start();
+
+
+
+        File picStorageDir = new File(Environment.getExternalStorageDirectory(), "CameraAnnotations/Snapshots");
+
+        if (!picStorageDir.exists()) {
+            if (!picStorageDir.mkdirs()) {
+                Log.d("App", "failed to create directory");
+            }
+        }
+
+        String mPhotoUrl = picStorageDir +
+                new StringBuilder("/CamAnotPhoto-").append(new SimpleDateFormat("dd-MM-yyyy-hh_mm_ss")
+                        .format(new Date())).append(".jpg").toString();
+
+        File imageShot = new File(mPhotoUrl);
+
+        FileOutputStream fos;
+
+        fos = new FileOutputStream(imageShot);
+
+       PixelCopy.request(mSurfaceView, bitmap, (copyResult) -> {
+            if (copyResult == PixelCopy.SUCCESS) {
+                Log.e(word,bitmap.toString());
+               String name = String.valueOf(System.currentTimeMillis() + ".jpg");
+                //imageFile = Screenshot.Utils.store(bitmap,name);
+                bitmap.compress(CompressFormat.JPEG,100,fos);
+                try {
+                    fos.flush();
+                    fos.close();
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+
+            } else {
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        "Failed to copyPixels: " + copyResult, Toast.LENGTH_LONG);
+                toast.show();
+            }
+            handlerThread.quitSafely();
+        }, new Handler(handlerThread.getLooper()));
+
+
+
+        if(imageShot.exists()){
+            String path1 = imageShot.getAbsolutePath().toString();
+            File myFile =  new File(path1);
+            Log.d("error checking","entering into this function");
+            if(myFile.exists()) {
+                Bitmap myBitmap = null;
+                while (myBitmap==null) {
+                    myBitmap = BitmapFactory.decodeFile(path1);
+                }
+                Log.d("Null checking","  "+myBitmap+"   ");
+                myImage = (ImageView) findViewById(R.id.imageView);
+                //ImageView myImage = new ImageView(this);
+                myImage.setImageBitmap(myBitmap);
+            }
+
+
+
+
+            myImage.setVisibility(View.VISIBLE);
+            getScreenshot();
+            myImage.setVisibility(View.GONE);
+
+        }
+    }
+
+
+public void getScreenshot() throws IOException{
+
+
+
+
+    File picStorageDir = new File(Environment.getExternalStorageDirectory(), "CameraAnnotations/SnapshotsAnnotations");
+
+    if (!picStorageDir.exists()) {
+        if (!picStorageDir.mkdirs()) {
+            Log.d("App", "failed to create directory");
+        }
+    }
+
+    String mPhotoUrl = picStorageDir +
+            new StringBuilder("/CamAnotPhotoAnno-").append(new SimpleDateFormat("dd-MM-yyyy-hh_mm_ss")
+                    .format(new Date())).append(".jpg").toString();
+
+    Date now = new Date();
+
+    File screenAnnotation = new File(mPhotoUrl);
+
+
+    FileOutputStream fos;
+    screen = Screenshot.capture(mRootLayout);
+    fos = new FileOutputStream(screenAnnotation);
+
+    Log.d("path","   "+screen+"   ");
+    screen.getBitmap().compress(CompressFormat.JPEG,100,fos);
+    fos.flush();
+    fos.close();
+
+}
 }
