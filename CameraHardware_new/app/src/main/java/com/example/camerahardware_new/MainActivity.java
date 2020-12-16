@@ -2,6 +2,7 @@ package com.example.camerahardware_new;
 
 
 import androidx.annotation.NonNull;
+//import android.graphics.Camera;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -11,12 +12,14 @@ import androidx.test.runner.screenshot.ScreenCapture;
 import androidx.test.runner.screenshot.Screenshot;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.gesture.GestureOverlayView;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
+import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
@@ -28,6 +31,7 @@ import android.graphics.Bitmap;
 import android.hardware.Camera;
 //import android.hardware.camera2.*;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -41,10 +45,12 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,6 +74,9 @@ import android.preference.PreferenceManager;
 import android.graphics.Bitmap.CompressFormat;
 import android.os.HandlerThread;
 import java.lang.Object;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import 	android.graphics.Canvas;
 import  	android.graphics.Paint;
 
@@ -84,17 +93,19 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private FileInputStream fis;
     private FileOutputStream fos;
 
+    int annoColor = 000000;
 
     ImageView myImage;
     ScreenCapture screen;
     String word="verification";
-    SurfaceView preview;
+   // SurfaceView preview;
     ByteArrayInputStream fis2;
 
     //Harshits part declation
 
     private static final int REQUEST_CODE = 1000;
     private static final int REQUEST_PERMISSION = 1001;
+    private static final int   PERMISSION_REQUEST_CODE = 200;
     private static final SparseIntArray ORIENTATION = new SparseIntArray();
 
 
@@ -118,11 +129,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
     //ConstraintLayout mConstraintlayout;
     private RelativeLayout mRootLayout;
-    private ToggleButton mToggleButton;
+    private ToggleButton mToggleButton,HandAnnotation;
 
     // Sai kiran part declaration
 
-    Button TextAnnotation,HandAnnotation,clearBtn,captureButton;
+    Button TextAnnotation,clearBtn,captureButton;
     EditText editTextFeild;
 
     private final static int START_DRAGGING = 0;
@@ -157,28 +168,36 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         gesture = (GestureOverlayView) findViewById(R.id.gestures);
         gesture.setEnabled(false);
-        HandAnnotation = (Button) findViewById(R.id.imageButton);
+        HandAnnotation = findViewById(R.id.toggleButton2);
         captureButton = (Button) findViewById(R.id.button_capture);
         mRootLayout = findViewById(R.id.Relative_Layout);
         TextAnnotation = (Button) findViewById(R.id.imageButton2);
         clearBtn= (Button) findViewById(R.id.clearbutton);
         editTextFeild = (EditText) findViewById(R.id.editTextTextPersonName);
         editTextFeild.setVisibility(View.GONE);
-        mCamera = getCameraInstance();
-        cam = checkCameraHardware(this);
-       // mCameraPreview = new CameraPreview(this, mCamera);
-        mSurfaceView = (SurfaceView) findViewById(R.id.camera_Preview);
-
-        mSurfaceHolder = mSurfaceView.getHolder();
-        mSurfaceHolder.addCallback(this);
-        mSurfaceHolder.setKeepScreenOn(true);
-
-        mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
-
         mToggleButton = findViewById(R.id.toggleButton);
+        mSurfaceView = (SurfaceView) findViewById(R.id.camera_Preview);
+      
+        if (CheckPermissionCamera()) {
+
+            cameraopen();
+//
+
+        } else {
+            requestPermission();
+        }
+
+
+
+
+
+
+
+
+
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         mScreenDensity = displayMetrics.densityDpi;
@@ -189,26 +208,21 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         mToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("data"," Identifng the error"+"  "+"enterin into thia function");
                 if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)+
                         ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO)
                         != PackageManager.PERMISSION_GRANTED){
+                    Log.d("data"," Identifng the error"+"  "+"permission not granted");
                     if(ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)||
                             ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.RECORD_AUDIO)){
-                        mToggleButton.setChecked(false);
-                        Snackbar.make(mRootLayout,"Permission", Snackbar.LENGTH_INDEFINITE)
-                                .setAction("Enable", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        ActivityCompat.requestPermissions(MainActivity.this,
-                                                new String[]
-                                                        {
-                                                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                                                Manifest.permission.RECORD_AUDIO
-                                                        },
-                                                REQUEST_PERMISSION );
-
-                                    }
-                                });
+                        Log.d("data"," Identifng the error"+"  "+"permission not granted");
+                        ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]
+                                        {
+                                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                Manifest.permission.RECORD_AUDIO
+                                        },
+                                REQUEST_PERMISSION );
 
                     }else {
                         ActivityCompat.requestPermissions(MainActivity.this,
@@ -220,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                                 REQUEST_PERMISSION );
                     }
                 } else {
+                    //Toast();
                     toggleScreenShare(v);
                 }
             }
@@ -236,12 +251,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         });
 
 
-        HandAnnotation.setOnClickListener(new View.OnClickListener() {
+        HandAnnotation.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(handFlag==false){
+                if(HandAnnotation.isChecked()){
                     gesture.setEnabled(true);
-                    handFlag=true;
+//                    handFlag=true;
                 }
                 else{
                     gesture.setEnabled(false);
@@ -272,11 +287,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 try {
 
                     takePhoto();
+
+
                 }
                 catch (Exception e){
-
-                    Log.d("kiran find","problem in take picture");
+                    e.printStackTrace();
                 }
+
+
+
 
 
             }
@@ -318,7 +337,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         try {
-            //mCamera.open();
+            Log.e("line","second line");
+
             mCamera.setPreviewDisplay(surfaceHolder);
             mCamera.setDisplayOrientation(0);
             mCamera.startPreview();
@@ -354,9 +374,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     protected void onResume() {
         super.onResume();
-        if(mCamera!=null) {
-            mCamera.startPreview();
-        }
 
 
     }
@@ -370,10 +387,31 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mCamera!=null) {
+        if(CheckPermissionCamera()){
+
             mCamera.release();
         }
 
+
+
+
+
+    }
+
+
+    private boolean CheckPermissionCamera(){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+            return false;
+        }
+        return true;
+    }
+
+
+
+    private void requestPermission(){
+
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
     }
 
     private Camera getCameraInstance() {
@@ -446,33 +484,43 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         return image;
     }
 
-    public void runTimer()
-    {
-        final Handler handler = new Handler();
-        timerTextView = (TextView) findViewById(R.id.timertextview);
-        timerTextView.setVisibility(View.INVISIBLE);
+//    public void runTimer()
+//    {
+//        final Handler handler = new Handler();
+//
+//
+////        timerTextView = (TextView) findViewById(R.id.timertextview);
+//        //timerTextView.setVisibility(View.INVISIBLE);
+//
+//        handler.post(new Runnable() {
+//            @Override
+//
+//            public void run()
+//            {
+//                int hours = seconds / 3600;
+//                int minutes = (seconds % 3600) / 60;
+//                int secs = seconds % 60;
+//
+//                String time = String.format("%02d:%02d:%02d", hours, minutes, secs);
+//
+//                timerTextView.setText(time);
+//
+//                if (running) {
+//                    seconds++;
+//                }
+//
+//                handler.postDelayed(this, 1000);
+//            }
+//        });
+//    }
 
-        handler.post(new Runnable() {
-            @Override
-
-            public void run()
-            {
-                int hours = seconds / 3600;
-                int minutes = (seconds % 3600) / 60;
-                int secs = seconds % 60;
-
-                String time = String.format("%02d:%02d:%02d", hours, minutes, secs);
-
-                timerTextView.setText(time);
-
-                if (running) {
-                    seconds++;
-                }
-
-                handler.postDelayed(this, 1000);
-            }
-        });
+    private void cameraopen(){
+        mCamera = getCameraInstance();
+        cam = checkCameraHardware(this);
+        mSurfaceHolder = mSurfaceView.getHolder();
+        mSurfaceHolder.addCallback(this);
     }
+
 
     private void toggleScreenShare(View v) {
         ToggleButton toggleButton = (ToggleButton) v;
@@ -480,8 +528,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             initRecorder();
             recordScreen();
 
-            timerTextView.setVisibility(View.VISIBLE);
-            running = true;
+//            timerTextView.setVisibility(View.VISIBLE);
+//            running = true;
 
         } else {
             if(mMediaRecorder!=null) {
@@ -492,8 +540,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     stopRecordScreen();
                     flag1 = false;
 
-                    timerTextView.setVisibility(View.INVISIBLE);
-                    running = false;
+//                    timerTextView.setVisibility(View.INVISIBLE);
+//                    running = false;
                     seconds = 0;
                 }
             }
@@ -524,7 +572,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
             mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 
-            runTimer();
+//            runTimer();
 
 
             File mediaStorageDir = new File(Environment.getExternalStorageDirectory(), "CameraAnnotations/ScreenRecordings");
@@ -633,26 +681,48 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         switch (requestCode){
             case REQUEST_PERMISSION:{
                 if (grantResults.length > 0 && (grantResults[0] + grantResults[1] == PackageManager.PERMISSION_GRANTED)){
+                    Log.e("checking","it was entering in to the Request permission in switch");
                     toggleScreenShare(mToggleButton);
                 }else
                 {
-                    mToggleButton.setChecked(false);
-                    Snackbar.make(mRootLayout,"Permission", Snackbar.LENGTH_INDEFINITE)
-                            .setAction("Enable", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    ActivityCompat.requestPermissions(MainActivity.this,
-                                            new String[]
-                                                    {
-                                                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                                            Manifest.permission.RECORD_AUDIO
-                                                    },
-                                            REQUEST_PERMISSION );
+                    ActivityCompat.requestPermissions(MainActivity.this,
+                            new String[]
+                                    {
+                                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                            Manifest.permission.RECORD_AUDIO
+                                    },
+                            REQUEST_PERMISSION );
 
-                                }
-                            });
                 }
                 return;
+            }
+            case PERMISSION_REQUEST_CODE:{
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.e("permisooin"," grated");
+                    Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_SHORT).show();
+                    mSurfaceView.setVisibility(View.INVISIBLE);
+                    cameraopen();
+                    mSurfaceView.setVisibility(View.VISIBLE);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Permission Denied", Toast.LENGTH_SHORT).show();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(getApplicationContext(), "You need to allow access permissions", Toast.LENGTH_SHORT).show();
+                            new DialogInterface.OnClickListener(){
+
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                                            {
+                                                requestPermission();
+                                            }
+                                        }
+                                    };
+                        }
+                    }
+                }
+
             }
         }
     }
