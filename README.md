@@ -6,8 +6,7 @@
 ![CI](https://github.com/99002624/Shadow_project-Camera_Annotations/workflows/CI/badge.svg)
 
 
-[![Build Status](https://travis-ci.org/{99002624}/{Shadow_project-Camera_Annotations}.png?branch=master)](https://travis-ci.org/{99002624}/{Shadow_project-Camera_Annotations})
-
+[![HitCount](http://hits.dwyl.com/{99002624}/{Shadow_project-Camera_Annotations}.svg)](http://hits.dwyl.com/{99002624}/{Shadow_project-Camera_Annotations})
 
 
 Scope of the Project 
