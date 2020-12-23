@@ -2,6 +2,10 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/61407639c1d44541aea18e5f30561ad1)](https://app.codacy.com/gh/99002624/Shadow_project-Camera_Annotations?utm_source=github.com&utm_medium=referral&utm_content=99002624/Shadow_project-Camera_Annotations&utm_campaign=Badge_Grade)
 
+
+![CI](https://github.com/99002624/Shadow_project-Camera_Annotations/workflows/CI/badge.svg)
+
+
 Scope of the Project 
 ||
 •	Application should be able to run the video recording with the default camera.
